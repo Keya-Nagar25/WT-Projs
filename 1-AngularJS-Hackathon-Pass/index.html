@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="hackPassApp">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HackPass | Registration &amp; Login</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.3/angular.min.js"></script>
+  <script src="app.js"></script>
+</head>
+<body ng-controller="AuthController as vm">
+
+  <header class="brand">
+    <span class="logo">&lt;/&gt;</span>
+    <h1>HackPass <small>CodeStorm 2026</small></h1>
+  </header>
+
+  <main class="container">
+
+    <!-- ============ AUTH CARD (register / login) ============ -->
+    <section class="card" ng-if="!vm.currentUser">
+      <div class="tabs">
+        <button ng-class="{active: vm.view === 'register'}" ng-click="vm.switchView('register')">Register</button>
+        <button ng-class="{active: vm.view === 'login'}" ng-click="vm.switchView('login')">Login</button>
+      </div>
+
+      <p class="alert success" ng-show="vm.successMsg">{{ vm.successMsg }}</p>
+      <p class="alert error" ng-show="vm.errorMsg">{{ vm.errorMsg }}</p>
+
+      <!-- ---------- REGISTRATION FORM ---------- -->
+      <form name="regForm" ng-if="vm.view === 'register'" ng-submit="vm.register(regForm)" novalidate>
+        <div class="row">
+          <div class="field">
+            <label for="firstName">First Name</label>
+            <input id="firstName" name="firstName" type="text" ng-model="vm.reg.firstName"
+                   required ng-pattern="/^[A-Za-z]+$/" placeholder="Keya">
+            <span class="hint" ng-show="regForm.firstName.$touched && regForm.firstName.$error.required">First name is required.</span>
+            <span class="hint" ng-show="regForm.firstName.$error.pattern">Letters only.</span>
+          </div>
+          <div class="field">
+            <label for="lastName">Last Name</label>
+            <input id="lastName" name="lastName" type="text" ng-model="vm.reg.lastName"
+                   required ng-pattern="/^[A-Za-z]+$/" placeholder="Nagar">
+            <span class="hint" ng-show="regForm.lastName.$touched && regForm.lastName.$error.required">Last name is required.</span>
+            <span class="hint" ng-show="regForm.lastName.$error.pattern">Letters only.</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="username">Username</label>
+          <input id="username" name="username" type="text" ng-model="vm.reg.username"
+                 required ng-minlength="4" ng-maxlength="15" ng-pattern="/^[a-zA-Z0-9_]+$/"
+                 ng-change="vm.checkUsername()" placeholder="keya_codes">
+          <span class="hint" ng-show="regForm.username.$touched && regForm.username.$error.required">Username is required.</span>
+          <span class="hint" ng-show="regForm.username.$error.minlength">At least 4 characters.</span>
+          <span class="hint" ng-show="regForm.username.$error.maxlength">At most 15 characters.</span>
+          <span class="hint" ng-show="regForm.username.$error.pattern">Only letters, numbers and _ allowed.</span>
+          <span class="hint" ng-show="vm.usernameTaken">This username is already taken.</span>
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" ng-model="vm.reg.password"
+                 required ng-minlength="6" placeholder="Min. 6 characters">
+          <div class="meter" ng-show="vm.reg.password">
+            <div class="meter-bar" ng-class="vm.strength().cls" ng-style="{width: vm.strength().pct + '%'}"></div>
+          </div>
+          <span class="meter-label" ng-show="vm.reg.password">Strength: {{ vm.strength().label }}</span>
+          <span class="hint" ng-show="regForm.password.$touched && regForm.password.$error.required">Password is required.</span>
+          <span class="hint" ng-show="regForm.password.$error.minlength">At least 6 characters.</span>
+        </div>
+
+        <div class="field">
+          <label for="confirm">Confirm Password</label>
+          <input id="confirm" name="confirm" type="password" ng-model="vm.reg.confirm" required>
+          <span class="hint" ng-show="vm.reg.confirm && vm.reg.confirm !== vm.reg.password">Passwords do not match.</span>
+        </div>
+
+        <div class="field">
+          <label for="track">Hackathon Track</label>
+          <select id="track" ng-model="vm.reg.track" ng-options="t for t in vm.tracks"></select>
+        </div>
+
+        <button type="submit" class="btn"
+                ng-disabled="regForm.$invalid || vm.usernameTaken || vm.reg.confirm !== vm.reg.password">
+          Create My Pass
+        </button>
+      </form>
+
+      <!-- ---------- LOGIN FORM ---------- -->
+      <form name="loginForm" ng-if="vm.view === 'login'" ng-submit="vm.login(loginForm)" novalidate>
+        <div class="field">
+          <label for="loginUser">Username</label>
+          <input id="loginUser" name="loginUser" type="text" ng-model="vm.cred.username" required>
+          <span class="hint" ng-show="loginForm.loginUser.$touched && loginForm.loginUser.$error.required">Enter your username.</span>
+        </div>
+        <div class="field">
+          <label for="loginPass">Password</label>
+          <input id="loginPass" name="loginPass" type="password" ng-model="vm.cred.password" required>
+          <span class="hint" ng-show="loginForm.loginPass.$touched && loginForm.loginPass.$error.required">Enter your password.</span>
+        </div>
+        <button type="submit" class="btn" ng-disabled="loginForm.$invalid">Login</button>
+      </form>
+
+      <p class="footnote">Registered participants: {{ vm.users.length }}</p>
+    </section>
+
+    <!-- ============ DIGITAL PASS (after login) ============ -->
+    <section class="pass-wrap" ng-if="vm.currentUser">
+      <h2>Welcome, {{ vm.currentUser.firstName }}! 🎉</h2>
+      <div class="pass">
+        <div class="pass-top">
+          <span>CODESTORM 2026</span>
+          <span class="pass-type">PARTICIPANT</span>
+        </div>
+        <div class="pass-body">
+          <div class="avatar">{{ vm.initials(vm.currentUser) }}</div>
+          <div class="pass-info">
+            <h3>{{ vm.currentUser.firstName }} {{ vm.currentUser.lastName | uppercase }}</h3>
+            <p>@{{ vm.currentUser.username }}</p>
+            <p><b>Track:</b> {{ vm.currentUser.track }}</p>
+            <p><b>Pass ID:</b> {{ vm.currentUser.passId }}</p>
+            <p><b>Registered:</b> {{ vm.currentUser.registeredOn | date:'dd MMM yyyy, h:mm a' }}</p>
+          </div>
+        </div>
+        <div class="barcode">
+          <span ng-repeat="bar in vm.barcode(vm.currentUser.passId) track by $index"
+                ng-style="{width: bar + 'px'}"></span>
+        </div>
+      </div>
+      <button class="btn outline" ng-click="vm.logout()">Logout</button>
+    </section>
+
+  </main>
+</body>
+</html>
