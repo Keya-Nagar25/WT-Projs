@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Constellation Memory Map</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="sky"></canvas>
+
+  <!-- Top bar -->
+  <header class="hud glass">
+    <div class="brand">✦ Constellation <span>Memory Map</span></div>
+    <div class="stats">
+      <span><b id="statStars">0</b> stars</span>
+      <span><b id="statLinks">0</b> links</span>
+      <span><b id="statGroups">0</b> constellations</span>
+    </div>
+    <div class="actions">
+      <input id="search" type="search" placeholder="Search memories…" aria-label="Search memories">
+      <button id="btnNew" class="primary">+ New star</button>
+      <button id="btnMenu" aria-label="More options">⋯</button>
+    </div>
+  </header>
+
+  <!-- Options dropdown -->
+  <div id="menu" class="menu glass hidden">
+    <label>Gravity <input id="gravity" type="range" min="0" max="2" step="0.1" value="1"></label>
+    <label>Link distance <input id="linkDist" type="range" min="100" max="300" step="10" value="180"></label>
+    <label class="check"><input id="showLabels" type="checkbox" checked> Show labels</label>
+    <button id="btnExport">Export sky (JSON)</button>
+    <label class="file-btn">Import sky<input id="fileImport" type="file" accept="application/json"></label>
+    <button id="btnClear" class="danger">Clear the sky</button>
+  </div>
+
+  <!-- Composer modal (new / edit star) -->
+  <div id="composer" class="overlay hidden">
+    <form id="composerForm" class="modal glass">
+      <h2 id="composerTitle">Drop a starlight memory</h2>
+      <textarea id="fText" maxlength="200" placeholder="What do you want to remember?" required></textarea>
+      <div class="type-row">
+        <label><input type="radio" name="fType" value="memory" checked> 🌙 Memory</label>
+        <label><input type="radio" name="fType" value="goal"> 🎯 Goal</label>
+      </div>
+      <div class="colors" id="colorPicker"></div>
+      <div class="modal-actions">
+        <button type="button" id="btnCancel">Cancel</button>
+        <button type="submit" class="primary">Place star</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Detail panel for a selected star -->
+  <aside id="detail" class="detail glass hidden">
+    <button class="close" id="btnCloseDetail" aria-label="Close">×</button>
+    <p class="d-type" id="dType"></p>
+    <p class="d-text" id="dText"></p>
+    <p class="d-meta" id="dMeta"></p>
+    <label class="check" id="goalDoneWrap"><input type="checkbox" id="dDone"> Goal achieved</label>
+    <div class="d-actions">
+      <button id="btnEdit">Edit</button>
+      <button id="btnDelete" class="danger">Delete</button>
+    </div>
+  </aside>
+
+  <div id="tooltip" class="tooltip hidden"></div>
+
+  <p class="help glass" id="help">
+    <b>Double-click</b> the sky to drop a star · <b>Drag</b> stars close together to form constellations · <b>Click</b> a star for details
+  </p>
+
+  <script src="app.js"></script>
+</body>
+</html>
