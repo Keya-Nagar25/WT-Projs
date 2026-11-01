@@ -32,11 +32,12 @@ body {
 
 .keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
 .keys button {
-  border: 0; border-radius: 14px; padding: 16px 0; font-size: 20px; cursor: pointer;
+  border: 0; border-radius: 14px; padding: 16px 0; font-size: 20px; font-family: inherit; cursor: pointer;
   background: #3730a3; color: #fff; transition: transform 0.08s, filter 0.15s;
 }
 .keys button:hover { filter: brightness(1.2); }
 .keys button:active { transform: scale(0.94); }
+.keys button:focus-visible, .clear-btn:focus-visible { outline: 3px solid #a5f3fc; outline-offset: 2px; }
 .keys .fn { background: #4c1d95; color: #ddd6fe; font-size: 17px; }
 .keys .op { background: #db2777; }
 .keys .eq { background: #06b6d4; color: #083344; font-weight: 700; }

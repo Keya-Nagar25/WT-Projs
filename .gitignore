@@ -1,0 +1,10 @@
+# Python
+__pycache__/
+*.pyc
+
+# Django local database (created by "python manage.py migrate")
+db.sqlite3
+
+# OS files
+.DS_Store
+Thumbs.db
