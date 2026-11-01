@@ -1,0 +1,91 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CalcLog | Django Calculator</title>
+  <link rel="stylesheet" href="{% static 'calculator/style.css' %}">
+</head>
+<body>
+  <h1 class="title">CalcLog <span>Django calculator with saved history</span></h1>
+
+  <div class="layout">
+    <!-- ================= CALCULATOR ================= -->
+    <form method="post" class="calc" id="calcForm">
+      {% csrf_token %}
+      <div class="screen">
+        <input type="text" name="expression" id="display" value="{{ expression }}"
+               placeholder="0" autocomplete="off" aria-label="Expression">
+        {% if result is not None %}
+          <div class="result">= {{ result }}</div>
+        {% elif error %}
+          <div class="result error">{{ error }}</div>
+        {% else %}
+          <div class="result muted">Type or tap an expression</div>
+        {% endif %}
+      </div>
+
+      <div class="keys">
+        <button type="button" class="fn" data-action="clear">C</button>
+        <button type="button" class="fn" data-action="back">⌫</button>
+        <button type="button" class="fn" data-key="(">(</button>
+        <button type="button" class="fn" data-key=")">)</button>
+
+        <button type="button" class="fn" data-key="√(">√</button>
+        <button type="button" class="fn" data-key="^2">x²</button>
+        <button type="button" class="fn" data-key="^">xʸ</button>
+        <button type="button" class="op" data-key="÷">÷</button>
+
+        <button type="button" data-key="7">7</button>
+        <button type="button" data-key="8">8</button>
+        <button type="button" data-key="9">9</button>
+        <button type="button" class="op" data-key="×">×</button>
+
+        <button type="button" data-key="4">4</button>
+        <button type="button" data-key="5">5</button>
+        <button type="button" data-key="6">6</button>
+        <button type="button" class="op" data-key="−">−</button>
+
+        <button type="button" data-key="1">1</button>
+        <button type="button" data-key="2">2</button>
+        <button type="button" data-key="3">3</button>
+        <button type="button" class="op" data-key="+">+</button>
+
+        <button type="button" class="fn" data-key="%">mod</button>
+        <button type="button" data-key="0">0</button>
+        <button type="button" data-key=".">.</button>
+        <button type="submit" class="eq">=</button>
+      </div>
+    </form>
+
+    <!-- ================= HISTORY ================= -->
+    <aside class="history">
+      <div class="history-head">
+        <h2>History</h2>
+        <span class="count">{{ total }} saved</span>
+      </div>
+
+      {% if history %}
+        <ul>
+          {% for calc in history %}
+            <li data-result="{{ calc.result }}" title="Click to reuse this result">
+              <span class="expr">{{ calc.expression }}</span>
+              <span class="ans">= {{ calc.result }}</span>
+              <span class="time">{{ calc.created_at|date:"d M, h:i A" }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+        <form method="post" action="{% url 'clear_history' %}">
+          {% csrf_token %}
+          <button type="submit" class="clear-btn">Clear history</button>
+        </form>
+      {% else %}
+        <p class="empty">No calculations yet. Your results will be stored in the database and appear here.</p>
+      {% endif %}
+    </aside>
+  </div>
+
+  <script src="{% static 'calculator/calc.js' %}"></script>
+</body>
+</html>
